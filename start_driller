@@ -18,7 +18,8 @@ import gc
 import threading
 
 
-TIME_START = time.time()
+
+
 
 
 def intersection(lst1, lst2): 
@@ -30,7 +31,8 @@ def files(path):
             yield file
 
 def save_test_to_file(time_stamp, data, suffix):
-    with open('output/{}_{}.xml'.format(format(time_stamp, ">09.4f"), suffix), 'wt+') as input_file:
+    os.system("mkdir -p output/{}".format(args.file.split("/")[-1]))
+    with open('output/{}/{}_{}.xml'.format(args.file.split("/")[-1], format(time_stamp, ">09.4f"), suffix), 'wt+') as input_file:
         input_file.write(
             '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n')
         input_file.write(
@@ -61,8 +63,8 @@ def binary_execute_parallel(input_bytes):
 def afl_simulation(new_paths):
     method = "A"
     results = []
-    for path in intersection(files("work_dir/program/sync/fuzzer-master/queue"), new_paths):
-        with open("work_dir/program/sync/fuzzer-master/queue/" + path, "rb") as f:
+    for path in intersection(files("work_dir/{}/sync/fuzzer-master/queue".format(args.file.split("/")[-1])), new_paths):
+        with open("work_dir/{}/sync/fuzzer-master/queue/".format(args.file.split("/")[-1]) + path, "rb") as f:
             byte = f.read()
             result = (byte, method)
         results.append(result)
@@ -71,16 +73,17 @@ def afl_simulation(new_paths):
 def driller_simulation(new_paths):
     method = "D"
     results = []
-    for path in intersection(files("work_dir/program/sync/driller/queue"), new_paths):
-        with open("work_dir/program/sync/driller/queue/" + path, "rb") as f:
+    for path in intersection(files("work_dir/{}/sync/driller/queue".format(args.file.split("/")[-1])), new_paths):
+        with open("work_dir/{}/sync/driller/queue/".format(args.file.split("/")[-1]) + path, "rb") as f:
             byte = f.read()
             result = (byte, method)
         results.append(result)
     test = [binary_execute_parallel(mutant) for mutant in results]
 
 
-if __name__ == "__main__":
 
+
+if __name__ == "__main__":
     os.environ['AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES'] = "1"
     os.environ['AFL_DONT_OPTIMIZE'] = "1"
     parser = argparse.ArgumentParser(description="Shellphish fuzzer interface")
@@ -103,7 +106,6 @@ if __name__ == "__main__":
     parser.add_argument('--driller-timeout', help="Number of seconds to allow driller to run", type=int, default=10*60)
     parser.add_argument('--length-extension', help="Try extending inputs to driller by this many bytes", type=int)
     args = parser.parse_args()
-    
     if os.path.isfile(os.path.join(os.getcwd(), args.logcfg)):
         logging.config.fileConfig(os.path.join(os.getcwd(), args.logcfg))
 
@@ -111,7 +113,7 @@ if __name__ == "__main__":
     except OSError: pass
 
     print ("[*] Compile...")
-    binary = "./program"
+    binary = "./bin/" + args.file.split("/")[-1]
     gcc_process = sp.run(["gcc", "__VERIFIER.c", "__VERIFIER_assume.c", args.file, "-o", binary])
 
     if args.helper_module:
@@ -124,8 +126,6 @@ if __name__ == "__main__":
 
     drill_extension = None
     grease_extension = None
-    # t = threading.Thread(target=save_xml)
-    # t.start()
     if args.grease_with:
         print ("[*] Greasing...")
         grease_extension = fuzzer.GreaseCallback(
@@ -182,11 +182,12 @@ if __name__ == "__main__":
         global AFL_DIR, DRILLER_DIR
         AFL_DIR = dict ()
         DRILLER_DIR = dict ()
-        time.sleep(2)
+        time.sleep(5)
+        TIME_START = time.time()
         while True:
             added = False
             try:
-                after = dict ([(f, None) for f in os.listdir ("work_dir/program/sync/fuzzer-master/queue")])
+                after = dict ([(f, None) for f in os.listdir ("work_dir/{}/sync/fuzzer-master/queue".format(args.file.split("/")[-1]))])
                 added = [f for f in after if not f in AFL_DIR]
             except:
                 added = False
@@ -197,7 +198,7 @@ if __name__ == "__main__":
             
             driller_added = False
             try:
-                driller_after = dict ([(f, None) for f in os.listdir ("work_dir/program/sync/driller/queue")])
+                driller_after = dict ([(f, None) for f in os.listdir ("work_dir/{}/sync/driller/queue".format(args.file.split("/")[-1]))])
                 driller_added = [f for f in driller_after if not f in DRILLER_DIR]
             except:
                 driller_added = False
@@ -226,7 +227,6 @@ if __name__ == "__main__":
     fuzzer.kill()
     if drill_extension:
         drill_extension.kill()
-
     if args.tarball:
         print ("[*] Dumping results...")
         p = os.path.join("/tmp/", "afl_sync")
