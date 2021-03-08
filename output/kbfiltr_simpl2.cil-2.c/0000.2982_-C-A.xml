@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE testcase PUBLIC "+//IDN sosy-lab.org//DTD test-format testcase 1.1//EN" "https://sosy-lab.org/test-format/testcase-1.1.dtd">
+<testcase>
+  <input type="int">-1637326047</input>
+  <input type="int">624894578</input>
+  <input type="int">1764712053</input>
+  <input type="int">1953853806</input>
+  <input type="int">-394893762</input>
+  <input type="int">3</input>
+  <input type="int">0</input>
+  <input type="int">0</input>
+  <input type="int">0</input>
+  <input type="int">0</input>
+  <input type="int">0</input>
+  <input type="int">0</input>
+  <input type="int">0</input>
+  <input type="int">0</input>
+  <input type="int">0</input>
+</testcase>
