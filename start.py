@@ -7,7 +7,7 @@ import shutil
 from zipfile import ZipFile
 from os.path import basename
 
-SV_DIR_BASE = "/home/ethan/sv-benchmarks/c/"
+SV_DIR_BASE = "/driller/sv-benchmarks/c/"
 
 def delete_folder(folder):
     if os.path.exists(folder) and os.path.isdir(folder):
