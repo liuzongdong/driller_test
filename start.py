@@ -36,7 +36,7 @@ def make_zip():
 if __name__ == '__main__':
     delete_folder("./work_dir")
     delete_folder("./output")
-    p = Pool(processes = 2)
+    p = Pool(processes = 14)
     start = time.time()
     tasks = get_tasks("ReachSafety-ControlFlow")
     async_result = p.map_async(start_driller, tasks)
