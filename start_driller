@@ -15,6 +15,7 @@ import logging.config
 import subprocess as sp
 import time
 import gc
+import datetime
 import threading
 
 
@@ -107,6 +108,25 @@ if __name__ == "__main__":
 
     try: os.mkdir("work_dir/")
     except OSError: pass
+
+    os.system("mkdir -p output/{}".format(args.file.split("/")[-1]))
+    with open("output/{}/metadata.xml".format(args.file.split("/")[-1]), "wt+") as md:
+        md.write('<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n')
+        md.write(
+            '<!DOCTYPE test-metadata PUBLIC "+//IDN sosy-lab.org//DTD test-format test-metadata 1.1//EN" "https://sosy-lab.org/test-format/test-metadata-1.1.dtd">\n')
+        md.write('<test-metadata>\n')
+        md.write('<sourcecodelang>C</sourcecodelang>\n')
+        md.write('<producer>Legion</producer>\n')
+        md.write('<specification>CHECK( LTL(G ! call(__VERIFIER_error())) )</specification>\n')
+        md.write('<programfile>{}</programfile>\n'.format(args.file))
+        res = sp.run(["sha256sum", args.file], stdout=sp.PIPE)
+        out = res.stdout.decode('utf-8')
+        sha256sum = out[:64]
+        md.write('<programhash>{}</programhash>\n'.format(sha256sum))
+        md.write('<entryfunction>main</entryfunction>\n')
+        md.write('<architecture>32bit</architecture>\n')
+        md.write('<creationtime>{}</creationtime>\n'.format(datetime.datetime.now()))
+        md.write('</test-metadata>\n')
 
     print ("[*] Compile...")
     os.system("mkdir -p bin")

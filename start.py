@@ -7,7 +7,7 @@ import shutil
 from zipfile import ZipFile
 from os.path import basename
 
-SV_DIR_BASE = "/driller/sv-benchmarks/c/"
+SV_DIR_BASE = "/home/ethan/sv-benchmarks/c/"
 
 def delete_folder(folder):
     if os.path.exists(folder) and os.path.isdir(folder):
@@ -36,7 +36,7 @@ def make_zip():
 if __name__ == '__main__':
     delete_folder("./work_dir")
     delete_folder("./output")
-    p = Pool(processes = 14)
+    p = Pool(processes = 2)
     start = time.time()
     tasks = get_tasks("ReachSafety-ControlFlow")
     async_result = p.map_async(start_driller, tasks)
